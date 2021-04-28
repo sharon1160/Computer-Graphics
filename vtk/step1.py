@@ -72,8 +72,8 @@ def main(argv):
     # set the size to be 300 pixels by 300.
     #
     renWin = vtk.vtkRenderWindow()
+    renWin.SetSize(1800, 1800)
     renWin.AddRenderer(ren1)
-    renWin.SetSize(300, 300)
     renWin.SetWindowName('Tutorial_Step1')
 
     #
