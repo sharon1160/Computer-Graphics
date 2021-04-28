@@ -54,9 +54,9 @@
             ////////////////////////////////////////////////////////////
         }
 
-        import * as THREE from './jsm/three.module.js';
-        import {OrbitControls} from './jsm/OrbitControls.js'; 
-        import { GUI } from './jsm/dat.gui.module.js';   
+        import * as THREE from '/three/jsm/three.module.js';
+        import {OrbitControls} from '/three/jsm/OrbitControls.js'; 
+        import { GUI } from '/three/jsm/dat.gui.module.js';   
 
         function makeXYZGUI(gui, vector3, name, onChangeFn) {
             const folder = gui.addFolder(name);
@@ -96,7 +96,7 @@
 
         // mesh /////////////////////////////////////////////////////////
         //const texture_cesped = new THREE.TextureLoader().load( 'textures/cesped2.jpg' );
-        var texture_cesped = new THREE.TextureLoader().load( 'textures/cesped2.jpg', function ( texture ) {
+        var texture_cesped = new THREE.TextureLoader().load( '/three/textures/cesped2.jpg', function ( texture ) {
             texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
             texture.offset.set( 0, 0 );
             texture.repeat.set( 2, 2 );
@@ -109,7 +109,7 @@
         plane.receiveShadow = true;
         scene.add(plane);
 
-        const texture_ball = new THREE.TextureLoader().load( 'textures/ball2.png' );
+        const texture_ball = new THREE.TextureLoader().load( '/three/textures/ball2.png' );
         var ball = new THREE.Mesh(
             new THREE.SphereGeometry(0.5, 16, 8), 
             new THREE.MeshPhongMaterial({ map: texture_ball})

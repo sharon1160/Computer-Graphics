@@ -6,39 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
-<body>
+<body> 
 
-    <!--<script src="three.min.js"> </script> 
-    <script src="OrbitControls.js"> </script> 
-    <script src="dat.gui.min.js"></script>
-    -->
-    <script type='module'>     
-        import * as THREE from './jsm/three.module.js';
-        import { GUI } from './jsm/dat.gui.module.js';
-        import {OrbitControls} from './jsm/OrbitControls.js';
-
-        // utilizado cuando queremos poner la lampara dentro de la scene como un mesh
-        function makeXYZGUI(gui, vector3, name, onChangeFn) {
-            const folder = gui.addFolder(name);
-            folder.add(vector3, 'x', -20, 20).onChange(onChangeFn);
-            folder.add(vector3, 'y', 0, 20).onChange(onChangeFn);
-            folder.add(vector3, 'z', -20, 20).onChange(onChangeFn);
-            folder.open();
-        }      
-
-        // utilizado por GUI para modificar los parametros de light en la scena
-        class ColorGUIHelper {
-            constructor(object, prop) {
-                this.object = object;
-                this.prop = prop;
-            }
-            get value() {
-                return `#${this.object[this.prop].getHexString()}`;
-            }
-            set value(hexString) {
-                this.object[this.prop].set(hexString);
-            }
-        }
+    <script type='module'>
+        import * as THREE from '/three/jsm/three.module.js';
+        import { GUI } from '/three/jsm/dat.gui.module.js';
+        import {OrbitControls} from '/three/jsm/OrbitControls.js';
+        import {Interaction} from '/three/jsm/three.interaction.module.js';
 
         // camera //////////////////////////////////////////////////
         var aspect = window.innerWidth/window.innerHeight;
@@ -51,9 +25,8 @@
                
         // mesh //////////////////////////////////////////////////       
         const cube_size = 4;      
-        var geometry_cube = new THREE.BoxGeometry(cube_size, cube_size, cube_size);
-        const texture_1 = new THREE.TextureLoader().load( 'textures/texture_1.jpg' );
-        var material_1 = new THREE.MeshPhongMaterial( {map: texture_1 } );
+        var geometry_cube = new THREE.BoxGeometry(cube_size, cube_size, cube_size);        
+        var material_1 = new THREE.MeshPhongMaterial( {color: 0xff0000 } );
         var cube = new THREE.Mesh( geometry_cube, material_1 );
         cube.position.set(0, cube_size / 2, 0);
         scene.add(cube); 
@@ -83,24 +56,11 @@
         light.position.set(5, 10, 10);
         light.target.position.set(0, 0, 0);
         scene.add(light);
-        scene.add(light.target);
-
-        const helper = new THREE.DirectionalLightHelper(light);
-        scene.add(helper);
-
-        function updateLight() {
-            light.target.updateMatrixWorld();
-            helper.update();
-        }
-        updateLight();        
-        // gui
-        const gui = new GUI();
-        gui.addColor(new ColorGUIHelper(light, 'color'), 'value').name('color');
-        gui.add(light, 'intensity', 0, 2, 0.01);
-        makeXYZGUI(gui, light.position, 'position', updateLight);
-        makeXYZGUI(gui, light.target.position, 'target', updateLight); 
+        scene.add(light.target);         
         //////////////////////////////////////////////////////////// 
         ////////////////////////////////////////////////////////////
+
+        
 
         
         // renderer //////////////////////////////////////////////////
@@ -114,9 +74,28 @@
         // OrbitControls /////////////////////////////////////////////
         var controls = new OrbitControls( camera, renderer.domElement );
         
-        // axes ///////////////////////////////////////////////////////
-        const axesHelper = new THREE.AxesHelper( 15 );
-        scene.add( axesHelper );
+        // Interactions /////////////////////////////////////////////
+        const interaction = new Interaction(renderer, scene, camera);
+        cube.cursor = 'pointer';
+        cube.on('click', function(ev) { 
+            console.log("click");
+            cube.material.color.setHex( 0xffff00 );
+        });
+        cube.on('touchstart', function(ev) {});
+        cube.on('touchcancel', function(ev) {});
+        cube.on('touchmove', function(ev) {});
+        cube.on('touchend', function(ev) {});
+        cube.on('mousedown', function(ev) {});
+        cube.on('mouseout', function(ev) { 
+            console.log("mouseout") 
+            cube.material.color.setHex( 0xff0000 );
+        });
+        cube.on('mouseover', function(ev) { 
+            console.log("mouseover") 
+            cube.material.color.setHex( 0xffffff );
+        });
+        cube.on('mousemove', function(ev) {});
+        cube.on('mouseup', function(ev) {});
                 
         // animation //////////////////////////////////////////////////
         var animate = function(){
