@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Collisions in 3D</title>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+<style>
+
+	body { margin: 0px; overflow: hidden; }
+
+</style>
+</head>
+
+<body>
+
+<script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r100/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r100/examples/js/controls/OrbitControls.js"></script>
+
+<script>
+
+	var count = 8; // numero de esferas
+	var radius = 0.5; // radio de las esferas
+	var range = 10;  // 
+
+	var scene = new THREE.Scene();
+
+	var renderer = new THREE.WebGLRenderer( { antialias: true } );
+	renderer.setSize( window.innerWidth, window.innerHeight );
+	renderer.setClearColor( 0x000000, 1 );
+	document.body.appendChild( renderer.domElement );
+
+	//CAMARA
+	var camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.1, 100 );
+	camera.up.set( 0, 0, 1 );
+	camera.position.set( 5*range, 0, 0);
+
+	var controls = new THREE.OrbitControls( camera, renderer.domElement );
+
+	window.addEventListener( 'resize', function() {
+
+		renderer.setSize( window.innerWidth, window.innerHeight );
+		camera.aspect = window.innerWidth / window.innerHeight;
+		camera.updateProjectionMatrix();
+
+	} );
+	
+	//AGREGANDO EJES PARA UNA MEJOR UBICACION
+	var axes = new THREE.AxesHelper(30);
+    scene.add(axes);
+	
+    
+    //PLANO 
+    var geometry = new THREE.PlaneGeometry( 20, 20, 1,1);
+    var material = new THREE.MeshBasicMaterial( {color: 'gray', side: THREE.DoubleSide} );
+    var plane = new THREE.Mesh( geometry, material );
+    plane.position.set(0, 0, -10);
+    scene.add( plane );
+
+	/*
+	//
+	var box = new THREE.Geometry();
+	box.vertices.push( new THREE.Vector3( -range, -range, -range ) );
+	box.vertices.push( new THREE.Vector3( range, range, range ) );
+	var boxMesh = new THREE.Line( box );
+	scene.add( new THREE.BoxHelper( boxMesh, 'white' ) );
+	*/
+
+	//LUZ
+	var light = new THREE.DirectionalLight( 0xffffff, .8 );
+	light.position.set( -range, range, 0 );
+	camera.add( light );
+	scene.add( camera );
+
+	//LUZ DE AMBIENTE
+	var ambient = new THREE.AmbientLight( 0x555555 );
+	scene.add( ambient );
+
+	//ARRAY DE PELOTAS
+	var balls = [];
+
+	for ( var i = 0 ; i < count ; i++ ) {
+
+		//CREANDO PELOTA CON GEOMETRIA Y MATERIAL
+		var geometry = new THREE.SphereGeometry( radius,20,20);
+		var material = new THREE.MeshPhongMaterial();
+		material.color = new THREE.Color().setHSL( Math.random(), 1, .5 );
+		var ball = new THREE.Mesh( geometry, material );
+
+		// POSICION ALEATORIA DE LA ESFERA
+		//ball.position.set(x,y,z)
+		//range - radius =  9.5
+		ball.position.set(( range - radius ) * ( 2 * Math.random() - 1 ),
+						  ( range - radius ) * ( 2 * Math.random() - 1 ), 
+						  -9.5);
+
+		// VECTOR ALEATORIO DE LA VELOCIDAD DE LA ESFERA
+		var speed = .15;
+		ball.v = new THREE.Vector3( speed * ( 2 * Math.random() - 1 ),
+						speed * ( 2 * Math.random() - 1 ),
+						0 );
+
+		//AGREGANDO BALL AL ARRAY DE BALLS
+		balls.push( ball );
+		scene.add( ball );
+
+	}
+
+	//VECTORES 3D
+	var plus = new THREE.Vector3();
+	var minus = new THREE.Vector3();
+	var separation = new THREE.Vector3();
+	var normal = new THREE.Vector3();
+	var relativeVelocity = new THREE.Vector3();
+
+	function render() {
+
+		requestAnimationFrame( render );
+		renderer.render( scene, camera );
+
+		for ( var i = 0 ; i < count ; i++ ) {
+
+			var b1 = balls[i];
+			
+			//copy : copia posicion al vector
+            //addScalar : suma un valor escalar(radio de la esfera) a X,Y,Z
+            //subScalar : resta un valor escalar a x,y,z
+            //add : suma un vector velocidad a este vector
+			plus.copy( b1.position ).addScalar( radius ).add( b1.v );//PUNTO POSITIVO
+			minus.copy( b1.position ).subScalar( radius ).add( b1.v );//PUNTO NEGATIVO
+
+			//SI  PASA DEL RANGO PREDEFINIDO,LA VELOCIDAD CAMBIA INVERSAMENTE
+			if ( plus.x > range || minus.x < -range )
+				b1.v.x = -b1.v.x;
+			if ( plus.y > range || minus.y < -range )
+				b1.v.y = -b1.v.y;
+			if ( plus.z > range || minus.z < -range ) 
+				b1.v.z = -b1.v.z;
+
+			for ( var j = i + 1 ; j < count ; j++ ) {
+
+				var b2 = balls[j];
+				//calcula la DISTANCIA entre la b1 y b2
+				separation.copy( b1.position ).add( b1.v ).sub( b2.position ).sub( b2.v );
+
+				//comprueba si esa distancia entre b1 y b2 es menor
+				//si es menor una collision es producida
+				if ( separation.length() < 2 * radius ) {
+
+					normal.copy( b1.position ).sub( b2.position ).normalize();
+					relativeVelocity.copy( b1.v ).sub( b2.v );
+					var dot = relativeVelocity.dot( normal );
+					normal = normal.multiplyScalar( dot );
+
+					b1.v.sub( normal );
+					b2.v.add( normal );
+				}
+			}
+			b1.position.add( b1.v );
+		}
+	}
+	render();
+
+</script>
+
+</body>
+</html>

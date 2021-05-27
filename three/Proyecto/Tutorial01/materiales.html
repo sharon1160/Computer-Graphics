@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<style>
+			body {
+				background-color: #ffffff;
+				margin: 0;
+				overflow: hidden;
+			}
+		</style>
+	</head>
+	<body>
+		<script src="three.min.js"></script>
+		<script>	
+			var camera, scene, renderer;
+			var geometry, material, mesh;
+			init();
+			animate();
+			function init() {
+				camera = new THREE.PerspectiveCamera(
+					75, window.innerWidth / window.innerHeight, 1, 1000);
+				camera.position.set(0,0,500);
+				scene = new THREE.Scene();
+				scene.add(camera);
+				
+				geometry = new THREE.IcosahedronGeometry(200, 1);
+				
+				//material = new THREE.MeshNormalMaterial({shading: THREE.FlatShading});//sombra no difuminado ,cuesta menos
+				//material = new THREE.MeshNormalMaterial({shading: THREE.SmoothShading});//sombra difuminada, cuesta  mas
+				
+				/*
+				material = new THREE.MeshBasicMaterial({
+					color: 0x000000,
+					wireframe: true,//cuando es false es oscuro el objeto
+					wireframeLinewidth: 2});
+				*/
+
+				//material = new THREE.MeshDepthMaterial(); //sombras ligeras en gris, requiere luz
+				//material = new THREE.MeshLambertMaterial(); //black sin luces, material no brillante
+				//material = new THREE.MeshPhongMaterial(); //black sin luces, material brillante
+				
+				
+				var mat1 = new THREE.MeshBasicMaterial({color: 0x0000ff});
+				var mat2 = new THREE.MeshBasicMaterial({color: 0xff0000});
+				var mat3 = new THREE.MeshBasicMaterial({color: 0xffffff});
+
+				var materials = [mat1, mat2, mat3];
+
+				for (var i = 0, l = geometry.faces.length; i < l; i++) {
+					geometry.faces[i].materialIndex = Math.floor(Math.random() * 3);//recorriendo las caras del icosaedro
+				}//math.floor quita decimales solo sale numero entero				
+				
+				
+				//mesh = new THREE.Mesh(geometry, material);
+
+				mesh = new THREE.Mesh(geometry, materials);
+
+				scene.add(mesh);
+				
+				renderer = new THREE.WebGLRenderer();
+				renderer.setClearColor("skyblue", 1);
+				renderer.setSize(window.innerWidth, window.innerHeight);
+				document.body.appendChild(renderer.domElement);
+			}
+			function animate() {
+				requestAnimationFrame(animate);
+				mesh.rotation.x = Date.now() * 0.00005;
+				mesh.rotation.y = Date.now() * 0.0001;
+				renderer.render(scene, camera);
+				
+			}
+		</script>
+	</body>
+</html>
