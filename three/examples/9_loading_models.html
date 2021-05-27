@@ -92,7 +92,7 @@
             materials.preload();
             var objLoader = new OBJLoader();
             objLoader.setMaterials( materials );
-            objLoader.load( 'models/poliedro.obj', function ( object ) {
+            objLoader.load( '/three/models/poliedro.obj', function( object ) {
                 object.position.set(5, -7, -10);   
                 scene.add( object );
             });
@@ -101,13 +101,13 @@
         // STLloader
         var loader2 = new STLLoader();
 			// Binary files - STL Import
-        loader2.load( '/three/models/dragon.stl', function ( geometry ) {
+        loader2.load( '/three/models/Natsume_Madara.STL', function ( geometry ) {
             var material = new THREE.MeshLambertMaterial( { color: 0x00FF00 } );
             var mesh = new THREE.Mesh( geometry, material );
             
             mesh.scale.set( 0.1, 0.1, 0.1 );
             mesh.position.set( 0, cube_size, 0 );
-            mesh.rotation.x = -Math.PI/2;
+            //mesh.rotation.x = -Math.PI/2;
             scene.add( mesh );
         } );
         ////////////////////////////////////////////////////////////
