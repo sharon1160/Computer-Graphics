@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>My first three.js app</title>
+		<style>
+			body { margin: 0; }
+		</style>
+	</head>
+	<body>
+		<script src="/three/three/three.min.js"> </script> 
+		<script type='module'>
+
+            import {OrbitControls} from '/three/three/jsm/OrbitControls.js';
+
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+            const renderer = new THREE.WebGLRenderer();
+            renderer.setSize( window.innerWidth, window.innerHeight);
+            document.body.appendChild( renderer.domElement );
+
+            var controls = new OrbitControls( camera, renderer.domElement );
+
+            const geometry = new THREE.BoxGeometry();
+            const material = new THREE.MeshBasicMaterial( {color: 0x00ff00})
+            const cube = new THREE.Mesh( geometry, material);
+            scene.add( cube );
+
+            const geometry2 = new THREE.ConeGeometry( 0.5, 1, 32 );
+            const material2 = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+            const cone = new THREE.Mesh( geometry2, material2 );
+            cone.position.y = 4;
+            scene.add( cone );
+
+            const axesHelper = new THREE.AxesHelper( 8 );
+            scene.add( axesHelper );
+
+            // Traslacion
+            const traslation = new THREE.Matrix4 () ;
+            traslation.set (1, 0, 0, 0.02,
+                            0, 1, 0, 0,
+                            0, 0, 1, 0,
+                            0, 0, 0, 1);
+            // Escalar
+            const escale = new THREE.Matrix4 () ;
+            escale.set (0.5, 0, 0, 0,
+                        0, 0.5, 0, 0,
+                        0, 0, 0.5, 0,
+                        0, 0, 0, 1);
+            // Rotar en Z
+            const rotatez = new THREE.Matrix4 ();
+            var theta = 0.01;
+            rotatez.set (Math.cos(theta), -Math.sin(theta), 0, 0,
+                        Math.sin(theta), Math.cos(theta), 0, 0,
+                        0, 0, 1, 0,
+                        0, 0, 0, 1);
+            // Rotar en x
+            const rotatex = new THREE.Matrix4 ();
+            var alpha = 0.05;
+            rotatex.set (1, 0, 0, 0,
+                        0, Math.cos(alpha), Math.sin(alpha), 0,
+                        0, -Math.sin(alpha), Math.cos(alpha), 0,
+                        0, 0, 0, 1);
+            // Rotar en y
+            const rotatey = new THREE.Matrix4 ();
+            var beta = 0.01;
+            rotatey.set (Math.cos(beta), 0, Math.sin(beta), 0,
+                        0, 1, 0, 0,
+                        -Math.sin(beta), 0, Math.cos(beta), 0,
+                        0, 0, 0, 1);
+
+            camera.position.z = 5;
+
+            var rotate, transformation1,transformation2,transformation3;
+            rotate = rotatex.multiply(rotatey);
+            transformation1 = traslation.multiply(rotate);
+            transformation2 = escale.multiply(transformation1);
+            
+            //cube.geometry.applyMatrix4( escale );
+            const animate = function () {
+              requestAnimationFrame( animate );
+              cube.geometry.applyMatrix4( rotatey );
+              renderer.render( scene, camera);
+            };
+
+            animate();
+
+		</script>
+	</body>
+</html>
